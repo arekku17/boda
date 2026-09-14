@@ -1,0 +1,80 @@
+{
+  "app": {
+    "errorTitle": "Invitación no encontrada",
+    "errorDesc": "Revisa el link o contacta a los organizadores.",
+    "preparing": "Cargando"
+  },
+  "nav": {
+    "home": "Inicio",
+    "event": "Evento",
+    "location": "Ubicación",
+    "gifts": "Regalos",
+    "wishes": "Mensajes"
+  },
+  "landing": {
+    "saveTheDate": "Reserva la fecha",
+    "openInvitation": "Abrir invitación"
+  },
+  "hero": {
+    "marriageTitle": "¡Nos casamos!",
+    "guestGreeting": "Para nuestro invitado:",
+    "guestSalutation": "Sr./Sra.",
+    "guestFallback": "Nuestro invitado",
+    "days": "Días",
+    "hours": "Horas",
+    "minutes": "Minutos",
+    "seconds": "Segundos"
+  },
+  "events": {
+    "saveTheDate": "Los esperamos el",
+    "title": "Itinerario",
+    "subtitle": "Nos encantaría que nos acompañes a celebrar el inicio de nuestra vida juntos",
+    "addToCalendar": "Agregar al calendario",
+    "googleCalendar": "Google Calendar",
+    "appleCalendar": "Apple Calendar",
+    "outlookCalendar": "Outlook Calendar"
+  },
+  "location": {
+    "eventVenue": "Dónde será",
+    "title": "Ubicación",
+    "viewMap": "Ver en Google Maps"
+  },
+  "gifts": {
+    "subTitle": "Mesa de regalos",
+    "title": "Regalos",
+    "message": "Tu presencia es nuestro mejor regalo. Si además deseas obsequiarnos algo, preparamos una lista con algunas ideas.",
+    "viewGifts": "Ver mesa de regalos",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "accountName": "Titular"
+  },
+  "giftsPage": {
+    "title": "Mesa de regalos",
+    "message": "Gracias por acompañarnos en este día tan especial. Estas son algunas ideas; da clic en cualquiera para ir a la tienda.",
+    "buy": "Ir a comprar",
+    "back": "Volver a la invitación",
+    "empty": "Muy pronto agregaremos nuestra lista de regalos.",
+    "loading": "Cargando regalos...",
+    "error": "No pudimos cargar la lista de regalos. Intenta de nuevo más tarde."
+  },
+  "wishes": {
+    "subTitle": "Envíanos tus buenos deseos",
+    "title": "Mensajes",
+    "emptyState": "Aún no hay mensajes. ¡Sé el primero!",
+    "attending": "Asistiré",
+    "notAttending": "No podré asistir",
+    "maybe": "Tal vez",
+    "nameLabel": "Tu nombre",
+    "namePlaceholder": "Escribe tu nombre...",
+    "attendanceLabel": "¿Asistirás?",
+    "attendancePlaceholder": "Selecciona una opción...",
+    "wishLabel": "Tu mensaje",
+    "wishPlaceholder": "Escribe tus buenos deseos para los novios...",
+    "sending": "Enviando...",
+    "sendButton": "Enviar mensaje",
+    "thankYou": "¡Gracias!",
+    "successMessage": "Tu mensaje fue enviado. Agradecemos mucho tus palabras.",
+    "oneMessageLimit": "Cada invitado puede enviar un solo mensaje.",
+    "close": "Cerrar"
+  }
+}

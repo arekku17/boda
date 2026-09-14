@@ -1,0 +1,143 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  /* Sage green palette (matches the printed invitation) */
+  --color-rose-50: #f4f6f1;
+  --color-rose-100: #e7ece1;
+  --color-rose-200: #d0dac6;
+  --color-rose-300: #b2c1a4;
+  --color-rose-400: #92a582;
+  --color-rose-500: #748a63;
+  --color-rose-600: #5c6f4e;
+  --color-rose-700: #4a5a3f;
+  --color-pink-50: #f6f7f2;
+  --color-pink-100: #eaeee3;
+  --color-pink-400: #a3b393;
+  --color-pink-600: #66785a;
+  --color-red-400: #c2cfb5;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --font-sans: "Outfit", sans-serif;
+  --font-serif: "Instrument Serif", serif;
+  --font-script: "Great Vibes", cursive;
+  --font-amp: "Parisienne", cursive;
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+}
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #1c1917;
+    --card: #ffffff;
+    --card-foreground: #1c1917;
+    --popover: #ffffff;
+    --popover-foreground: #1c1917;
+    --primary: #748a63;
+    --primary-foreground: #ffffff;
+    --secondary: #f5f5f4;
+    --secondary-foreground: #1c1917;
+    --muted: #f5f5f4;
+    --muted-foreground: #78716c;
+    --accent: #f5f5f4;
+    --accent-foreground: #1c1917;
+    --destructive: #9f1239;
+    --destructive-foreground: #f8fafc;
+    --border: #e7e5e4;
+    --input: #e7e5e4;
+    --ring: #1c1917;
+    --chart-1: #e8614d;
+    --chart-2: #2a9d8f;
+    --chart-3: #264653;
+    --chart-4: #e9c46a;
+    --chart-5: #f4a261;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: #0c0a09;
+    --foreground: #fafaf9;
+    --card: #0c0a09;
+    --card-foreground: #fafaf9;
+    --popover: #0c0a09;
+    --popover-foreground: #fafaf9;
+    --primary: #fb7185;
+    --primary-foreground: #1c1917;
+    --secondary: #1c1917;
+    --secondary-foreground: #fafaf9;
+    --muted: #1c1917;
+    --muted-foreground: #a8a29e;
+    --accent: #1c1917;
+    --accent-foreground: #fafaf9;
+    --destructive: #be123c;
+    --destructive-foreground: #fafaf9;
+    --border: #292524;
+    --input: #292524;
+    --ring: #fafaf9;
+    --chart-1: #3b82f6;
+    --chart-2: #34d399;
+    --chart-3: #f59e0b;
+    --chart-4: #a78bfa;
+    --chart-5: #f472b6;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

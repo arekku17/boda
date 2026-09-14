@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.wrangler/
+
+# Lock files
+bun.lockb
+package-lock.json
+
+# Generated files
+coverage/
+
+# Public assets
+public/
+
+# Markdown (optional - remove if you want to format markdown)
+*.md
