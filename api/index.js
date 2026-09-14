@@ -1,8 +1,9 @@
 /**
  * Vercel serverless entrypoint for the Hono API.
  *
- * Catch-all so every /api/* path reaches the app, which mounts its routes
- * under /api (see src/server/index.js).
+ * Every /api/* path is rewritten here by vercel.json, and the app mounts its
+ * routes under /api (see src/server/index.js). The rewrite is internal, so
+ * req.url still carries the original path and Hono routes on it.
  *
  * Vercel's Node runtime invokes handlers with (req, res) from node:http, but
  * Hono expects a web Request and returns a web Response, so we translate in
