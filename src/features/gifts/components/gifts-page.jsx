@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink, Gift, HandHeart, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ExternalLink,
+  Gift,
+  HandHeart,
+  Loader2,
+} from "lucide-react";
 import { useConfig } from "@/features/invitation/hooks/use-config";
 import { claimGift, fetchGifts, resolveApiUrl } from "@/services/api";
 import { LanguageProvider, useTranslation } from "@/lib/i18n";
@@ -38,10 +44,10 @@ function ClaimGift({ gift, t }) {
         type="button"
         onClick={() => setClaiming(true)}
         className={cn(
-          "w-full flex items-center justify-center gap-2 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
+          "w-full flex items-center justify-center gap-1.5 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 px-3 py-2 rounded-xl text-xs font-medium leading-tight transition-colors",
         )}
       >
-        <HandHeart className={cn("w-4 h-4")} />
+        <HandHeart className={cn("w-3.5 h-3.5 shrink-0")} />
         <span>{t("giftsPage.claim")}</span>
       </button>
     );
@@ -65,20 +71,20 @@ function ClaimGift({ gift, t }) {
         placeholder={t("giftsPage.claimPlaceholder")}
         maxLength={100}
         className={cn(
-          "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-100",
+          "w-full rounded-lg border border-gray-200 bg-white px-2.5 py-2 text-xs text-gray-800 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-100",
         )}
       />
       {error && <p className={cn("text-xs text-red-600")}>{error}</p>}
-      <div className={cn("flex gap-2")}>
+      <div className={cn("flex flex-col gap-2")}>
         <button
           type="submit"
           disabled={claim.isPending || !name.trim()}
           className={cn(
-            "flex-1 flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 disabled:opacity-60 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
+            "w-full flex items-center justify-center gap-1.5 bg-rose-500 hover:bg-rose-600 disabled:opacity-60 text-white px-3 py-2 rounded-xl text-xs font-medium transition-colors",
           )}
         >
           {claim.isPending && (
-            <Loader2 className={cn("w-4 h-4 animate-spin")} />
+            <Loader2 className={cn("w-3.5 h-3.5 animate-spin")} />
           )}
           {t("giftsPage.claimConfirm")}
         </button>
@@ -90,7 +96,7 @@ function ClaimGift({ gift, t }) {
             setError("");
           }}
           className={cn(
-            "px-4 py-2.5 rounded-xl text-sm text-gray-600 border border-gray-200 hover:bg-gray-50",
+            "w-full px-3 py-2 rounded-xl text-xs text-gray-600 border border-gray-200 hover:bg-gray-50",
           )}
         >
           {t("giftsPage.claimCancel")}
@@ -198,19 +204,19 @@ function GiftsPageContent() {
             variants={staggerContainer()}
             initial="hidden"
             animate="visible"
-            className={cn("space-y-5 pb-8")}
+            className={cn("grid grid-cols-2 gap-3 pb-8")}
           >
             {gifts.map((gift) => (
               <motion.li
                 key={gift.id}
                 variants={fadeUp}
                 className={cn(
-                  "bg-white rounded-2xl border border-rose-100 shadow-sm overflow-hidden",
+                  "bg-white rounded-2xl border border-rose-100 shadow-sm overflow-hidden flex flex-col",
                 )}
               >
                 <div
                   className={cn(
-                    "aspect-[4/3] bg-rose-50 flex items-center justify-center",
+                    "aspect-square bg-rose-50 flex items-center justify-center",
                   )}
                 >
                   {gift.image ? (
@@ -221,17 +227,21 @@ function GiftsPageContent() {
                       className={cn("w-full h-full object-cover")}
                     />
                   ) : (
-                    <Gift className={cn("w-12 h-12 text-rose-300")} />
+                    <Gift className={cn("w-10 h-10 text-rose-300")} />
                   )}
                 </div>
 
-                <div className={cn("p-5 space-y-3")}>
-                  <div>
-                    <h2 className={cn("font-medium text-gray-800")}>
+                <div className={cn("p-3 space-y-2 flex flex-1 flex-col")}>
+                  <div className={cn("flex-1")}>
+                    <h2
+                      className={cn(
+                        "font-medium text-gray-800 text-sm leading-snug",
+                      )}
+                    >
                       {gift.name}
                     </h2>
                     {gift.store && (
-                      <p className={cn("text-sm text-gray-500")}>
+                      <p className={cn("text-xs text-gray-500")}>
                         {gift.store}
                       </p>
                     )}
@@ -242,11 +252,11 @@ function GiftsPageContent() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className={cn(
-                      "w-full flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
+                      "w-full flex items-center justify-center gap-1.5 bg-rose-500 hover:bg-rose-600 text-white px-3 py-2 rounded-xl text-xs font-medium transition-colors",
                     )}
                   >
                     <span>{t("giftsPage.buy")}</span>
-                    <ExternalLink className={cn("w-4 h-4")} />
+                    <ExternalLink className={cn("w-3.5 h-3.5")} />
                   </a>
 
                   <ClaimGift gift={gift} t={t} />
