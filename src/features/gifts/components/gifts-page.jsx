@@ -1,13 +1,104 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, ExternalLink, Gift } from "lucide-react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ArrowLeft, ExternalLink, Gift, HandHeart, Loader2 } from "lucide-react";
 import { useConfig } from "@/features/invitation/hooks/use-config";
-import { fetchGifts, resolveApiUrl } from "@/services/api";
+import { claimGift, fetchGifts, resolveApiUrl } from "@/services/api";
 import { LanguageProvider, useTranslation } from "@/lib/i18n";
 import { useMotionPreset, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+
+function ClaimGift({ gift, t }) {
+  const queryClient = useQueryClient();
+  const [claiming, setClaiming] = useState(false);
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+
+  const claim = useMutation({
+    mutationFn: (guestName) => claimGift(gift.id, guestName),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
+    },
+    onError: (err) => {
+      // Someone else just claimed it, or it was removed - either way it
+      // should no longer show as available, so refresh the list.
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
+      setError(
+        err.code === "GIFT_ALREADY_CLAIMED"
+          ? t("giftsPage.claimTaken")
+          : t("giftsPage.claimError"),
+      );
+    },
+  });
+
+  if (!claiming) {
+    return (
+      <button
+        type="button"
+        onClick={() => setClaiming(true)}
+        className={cn(
+          "w-full flex items-center justify-center gap-2 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
+        )}
+      >
+        <HandHeart className={cn("w-4 h-4")} />
+        <span>{t("giftsPage.claim")}</span>
+      </button>
+    );
+  }
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!name.trim()) return;
+        setError("");
+        claim.mutate(name.trim());
+      }}
+      className={cn("space-y-2")}
+    >
+      <input
+        autoFocus
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder={t("giftsPage.claimPlaceholder")}
+        maxLength={100}
+        className={cn(
+          "w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-800 focus:border-rose-400 focus:outline-none focus:ring-2 focus:ring-rose-100",
+        )}
+      />
+      {error && <p className={cn("text-xs text-red-600")}>{error}</p>}
+      <div className={cn("flex gap-2")}>
+        <button
+          type="submit"
+          disabled={claim.isPending || !name.trim()}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-2 bg-rose-500 hover:bg-rose-600 disabled:opacity-60 text-white px-4 py-2.5 rounded-xl text-sm font-medium transition-colors",
+          )}
+        >
+          {claim.isPending && (
+            <Loader2 className={cn("w-4 h-4 animate-spin")} />
+          )}
+          {t("giftsPage.claimConfirm")}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setClaiming(false);
+            setName("");
+            setError("");
+          }}
+          className={cn(
+            "px-4 py-2.5 rounded-xl text-sm text-gray-600 border border-gray-200 hover:bg-gray-50",
+          )}
+        >
+          {t("giftsPage.claimCancel")}
+        </button>
+      </div>
+    </form>
+  );
+}
 
 function GiftsPageContent() {
   const config = useConfig();
@@ -157,6 +248,8 @@ function GiftsPageContent() {
                     <span>{t("giftsPage.buy")}</span>
                     <ExternalLink className={cn("w-4 h-4")} />
                   </a>
+
+                  <ClaimGift gift={gift} t={t} />
                 </div>
               </motion.li>
             ))}

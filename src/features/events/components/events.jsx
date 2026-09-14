@@ -2,7 +2,12 @@ import EventCards from "@/features/events/components/events-card";
 import { useConfig } from "@/features/invitation/hooks/use-config";
 import { motion } from "motion/react";
 import { Heart } from "lucide-react";
-import { useMotionPreset, staggerContainer } from "@/lib/motion";
+import {
+  useMotionPreset,
+  staggerContainer,
+  VIEWPORT,
+  VIEWPORT_REVEAL,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "@/lib/i18n";
 
@@ -24,7 +29,7 @@ export default function Events() {
           variants={fade}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={VIEWPORT}
           className={cn("relative z-10 container mx-auto px-4 py-20")}
         >
           {/* Section Header */}
@@ -32,7 +37,7 @@ export default function Events() {
             variants={staggerContainer()}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={VIEWPORT_REVEAL}
             className={cn("text-center space-y-4 mb-16")}
           >
             <motion.span
@@ -76,7 +81,7 @@ export default function Events() {
             variants={fadeUp}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={VIEWPORT}
             className={cn("max-w-2xl mx-auto")}
           >
             <EventCards

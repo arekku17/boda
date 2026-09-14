@@ -134,11 +134,146 @@ describe("gifts routes", () => {
         image: "https://example.com/cafetera.jpg",
       });
 
-      // Image bytes are excluded from the list query
+      // Image bytes are excluded, and unauthenticated requests only see
+      // unclaimed gifts
+      expect(collection.find).toHaveBeenCalledWith(
+        { claimedBy: null },
+        { projection: { imageData: 0 } },
+      );
+    });
+
+    it("should hide who claimed a gift from public requests", async () => {
+      mockCollection({
+        findDocs: [createGiftDoc({ claimedBy: "Ana", claimedAt: UPDATED_AT })],
+      });
+
+      const res = await app.request("/gifts", {}, ENV);
+      const json = await res.json();
+
+      expect(json.data[0]).not.toHaveProperty("claimedBy");
+      expect(json.data[0]).not.toHaveProperty("claimedAt");
+    });
+
+    it("should return every gift plus who claimed it for admins", async () => {
+      const collection = mockCollection({
+        findDocs: [createGiftDoc({ claimedBy: "Ana", claimedAt: UPDATED_AT })],
+      });
+
+      const res = await app.request(
+        "/gifts",
+        { headers: { Authorization: `Bearer ${token}` } },
+        ENV,
+      );
+      const json = await res.json();
+
       expect(collection.find).toHaveBeenCalledWith(
         {},
         { projection: { imageData: 0 } },
       );
+      expect(json.data[0]).toMatchObject({
+        claimedBy: "Ana",
+        claimedAt: UPDATED_AT.toISOString(),
+      });
+    });
+  });
+
+  describe("POST /gifts/:id/claim", () => {
+    it("should let a guest claim an available gift", async () => {
+      const collection = mockCollection({
+        updatedDoc: createGiftDoc({ claimedBy: "Ana", claimedAt: UPDATED_AT }),
+      });
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/claim`,
+        jsonRequest("POST", { name: "Ana" }),
+        ENV,
+      );
+      const json = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(json.data).not.toHaveProperty("claimedBy");
+
+      const [filter, update] = collection.findOneAndUpdate.mock.calls[0];
+      expect(filter).toMatchObject({ claimedBy: null });
+      expect(update.$set.claimedBy).toBe("Ana");
+    });
+
+    it("should reject claiming a gift someone else already claimed", async () => {
+      const collection = mockCollection({ updatedDoc: null });
+      collection.findOne.mockResolvedValue({ _id: new ObjectId(GIFT_ID) });
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/claim`,
+        jsonRequest("POST", { name: "Ana" }),
+        ENV,
+      );
+      const json = await res.json();
+
+      expect(res.status).toBe(409);
+      expect(json.code).toBe("GIFT_ALREADY_CLAIMED");
+    });
+
+    it("should return 404 when the gift doesn't exist", async () => {
+      const collection = mockCollection({ updatedDoc: null });
+      collection.findOne.mockResolvedValue(null);
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/claim`,
+        jsonRequest("POST", { name: "Ana" }),
+        ENV,
+      );
+
+      expect(res.status).toBe(404);
+    });
+
+    it("should return 400 for an empty name", async () => {
+      mockCollection();
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/claim`,
+        jsonRequest("POST", { name: "" }),
+        ENV,
+      );
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe("DELETE /gifts/:id/claim", () => {
+    it("should reject requests without a token", async () => {
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/claim`,
+        { method: "DELETE" },
+        ENV,
+      );
+
+      expect(res.status).toBe(401);
+    });
+
+    it("should release a claimed gift", async () => {
+      const collection = mockCollection({ updatedDoc: createGiftDoc() });
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/claim`,
+        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+        ENV,
+      );
+
+      expect(res.status).toBe(200);
+      const [, update] = collection.findOneAndUpdate.mock.calls[0];
+      expect(update.$set).toEqual({ claimedBy: null, claimedAt: null });
+    });
+
+    it("should return 404 for a non-existent gift", async () => {
+      mockCollection({ updatedDoc: null });
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/claim`,
+        { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+        ENV,
+      );
+
+      expect(res.status).toBe(404);
     });
   });
 

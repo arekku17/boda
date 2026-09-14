@@ -55,7 +55,13 @@
     "back": "Volver a la invitación",
     "empty": "Muy pronto agregaremos nuestra lista de regalos.",
     "loading": "Cargando regalos...",
-    "error": "No pudimos cargar la lista de regalos. Intenta de nuevo más tarde."
+    "error": "No pudimos cargar la lista de regalos. Intenta de nuevo más tarde.",
+    "claim": "Yo llevaré este regalo",
+    "claimPlaceholder": "Escribe tu nombre",
+    "claimConfirm": "Confirmar",
+    "claimCancel": "Cancelar",
+    "claimTaken": "Alguien más ya apartó este regalo.",
+    "claimError": "No se pudo apartar el regalo. Intenta de nuevo."
   },
   "wishes": {
     "subTitle": "Envíanos tus buenos deseos",

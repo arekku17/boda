@@ -2,7 +2,11 @@ import { useTranslation } from "@/lib/i18n";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { Gift, ArrowRight } from "lucide-react";
-import { useMotionPreset, staggerContainer } from "@/lib/motion";
+import {
+  useMotionPreset,
+  staggerContainer,
+  VIEWPORT_REVEAL,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 export default function Gifts() {
@@ -18,7 +22,7 @@ export default function Gifts() {
           variants={staggerContainer()}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={VIEWPORT_REVEAL}
           className={cn("text-center space-y-4")}
         >
           <motion.span
@@ -52,7 +56,7 @@ export default function Gifts() {
             {t("gifts.message")}
           </motion.p>
 
-          <motion.div variants={fadeUp} className={cn("pt-4")}>
+          <motion.div variants={scaleIn} className={cn("pt-4")}>
             <Link
               to="/regalos"
               className={cn(

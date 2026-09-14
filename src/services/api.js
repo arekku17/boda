@@ -147,10 +147,33 @@ async function request(path, { token, headers, ...options } = {}) {
 
 /**
  * Get the gift registry
+ * @param {string} [token] - Admin session token. When provided, the response
+ *   includes claimed gifts and who is bringing each one.
  * @returns {Promise<object>} Response with gifts data
  */
-export function fetchGifts() {
-  return request("/api/gifts");
+export function fetchGifts(token) {
+  return request("/api/gifts", { token });
+}
+
+/**
+ * Claim a gift - a guest declares they will bring it
+ * @param {string} id - Gift ID
+ * @param {string} name - Guest name
+ */
+export function claimGift(id, name) {
+  return request(`/api/gifts/${id}/claim`, {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+}
+
+/**
+ * Release a claimed gift back to the registry (admin)
+ * @param {string} token - Admin session token
+ * @param {string} id - Gift ID
+ */
+export function unclaimGift(token, id) {
+  return request(`/api/gifts/${id}/claim`, { method: "DELETE", token });
 }
 
 /**

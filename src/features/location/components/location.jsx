@@ -3,7 +3,11 @@ import { useTranslation } from "@/lib/i18n";
 import { Clock, MapPin, CalendarCheck, ExternalLink } from "lucide-react";
 import { motion } from "motion/react";
 import { formatEventDate, formatTime12h } from "@/lib/format-event-date";
-import { useMotionPreset, staggerContainer } from "@/lib/motion";
+import {
+  useMotionPreset,
+  staggerContainer,
+  VIEWPORT_REVEAL,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
 // Use the exact Google Maps links when provided, otherwise search by venue name
@@ -40,7 +44,7 @@ export default function Location() {
             variants={staggerContainer()}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true }}
+            viewport={VIEWPORT_REVEAL}
             className={cn("text-center space-y-4 mb-16")}
           >
             <motion.span
@@ -76,13 +80,14 @@ export default function Location() {
               return (
                 <motion.div
                   key={venue.title}
-                  variants={fadeUp}
+                  variants={staggerContainer()}
                   initial="hidden"
                   whileInView="visible"
-                  viewport={{ once: true }}
+                  viewport={VIEWPORT_REVEAL}
                   className={cn("space-y-4")}
                 >
-                  <div
+                  <motion.div
+                    variants={scaleIn}
                     className={cn(
                       "w-full h-[280px] rounded-2xl overflow-hidden shadow-lg border-8 border-white",
                     )}
@@ -98,9 +103,10 @@ export default function Location() {
                       referrerPolicy="no-referrer-when-downgrade"
                       className={cn("w-full h-full")}
                     ></iframe>
-                  </div>
+                  </motion.div>
 
-                  <div
+                  <motion.div
+                    variants={scaleIn}
                     className={cn(
                       "bg-white rounded-2xl p-8 shadow-lg border border-gray-100",
                     )}
@@ -163,7 +169,7 @@ export default function Location() {
                         </motion.a>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 </motion.div>
               );
             })}

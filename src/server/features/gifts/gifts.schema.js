@@ -77,6 +77,17 @@ export const giftIdParamSchema = z.object({
 });
 
 /**
+ * Claim-a-gift schema (guest declares they will bring it)
+ */
+export const claimGiftSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than 100 characters"),
+});
+
+/**
  * @typedef {import('zod').infer<typeof giftSchema>} Gift
  * @typedef {import('zod').infer<typeof giftIdParamSchema>} GiftIdParam
  */

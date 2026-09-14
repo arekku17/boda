@@ -38,11 +38,12 @@ const config = {
         // Hora de término (opcional)
         endTime: "",
         location: "Iglesia Jesucristo Rey de Gloria",
-        address: "Calle 10 entre Calle 11 y Andador 1, Col. La Cruz.",
-        // TODO: agrega la ciudad y el estado para que el mapa sea exacto
-        mapsQuery: "Iglesia Jesucristo Rey de Gloria, Col. La Cruz",
-        maps_url: "",
-        maps_embed: "",
+        address:
+          "Calle 10 entre Calle 11 y Andador 1, Col. La Cruz, Ciudad del Carmen, Campeche.",
+        mapsQuery: "Iglesia Jesucristo Rey de Gloria, Ciudad del Carmen, Campeche",
+        maps_url: "https://maps.app.goo.gl/94VH3YfD52P63ikk9",
+        maps_embed:
+          "https://maps.google.com/maps?q=19.338971,-90.7175222&z=17&output=embed",
       },
       {
         title: "Recepción",
@@ -51,18 +52,18 @@ const config = {
         endTime: "",
         location: "Salón Lua Eventos",
         address:
-          "Carr. Costera de Golfo entre Calle 1 y Calle 3, Col. Las Brisas.",
-        // TODO: agrega la ciudad y el estado para que el mapa sea exacto
-        mapsQuery: "Salón Lua Eventos, Col. Las Brisas",
-        maps_url: "",
-        maps_embed: "",
+          "Carr. Costera de Golfo entre Calle 1 y Calle 3, Col. Las Brisas, Ciudad del Carmen, Campeche.",
+        mapsQuery: "Lua Eventos, Ciudad del Carmen, Campeche",
+        maps_url: "https://maps.app.goo.gl/BcCKJvjF53nYhv989",
+        maps_embed:
+          "https://maps.google.com/maps?q=19.3349904,-90.736931&z=17&output=embed",
       },
     ],
 
     // Música de fondo
     audio: {
-      src: "/audio/fulfilling-humming.mp3", // o /audio/nature-sound.mp3
-      title: "Fulfilling Humming",
+      src: "/audio/la-bondad-de-dios.mp3", // o /audio/fulfilling-humming.mp3, /audio/nature-sound.mp3
+      title: "La Bondad de Dios",
       autoplay: true,
       loop: true,
     },

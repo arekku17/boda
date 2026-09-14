@@ -14,42 +14,45 @@ import {
 } from "lucide-react";
 import { formatEventDate, formatTime12h } from "@/lib/format-event-date";
 import { useTranslation } from "@/lib/i18n";
-import { useMotionPreset } from "@/lib/motion";
+import { useMotionPreset, VIEWPORT_REVEAL } from "@/lib/motion";
 
 const Modal = ({ isOpen, onClose, children }) => {
   const fade = useMotionPreset("fade");
-  const fadeUp = useMotionPreset("fadeUp");
+  const scaleIn = useMotionPreset("scaleIn");
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        // Centered with flex instead of left/top + translate: Motion drives
+        // the `transform` style directly, which would otherwise clobber a
+        // CSS -translate-x/y-1/2 centering trick and push the modal off-center.
+        <motion.div
+          variants={fade}
+          initial="hidden"
+          animate="visible"
+          exit="exit"
+          onClick={onClose}
+          className={cn(
+            "fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm",
+          )}
+        >
           <motion.div
-            variants={fade}
+            variants={scaleIn}
             initial="hidden"
             animate="visible"
             exit="exit"
-            onClick={onClose}
-            className={cn("fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]")}
-          />
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className={cn(
-              "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[70] w-[90%] max-w-sm",
-            )}
+            onClick={(e) => e.stopPropagation()}
+            className={cn("w-full max-w-sm")}
           >
             <div
               className={cn(
-                "bg-white transform -translate-x-1/2 -translate-y-1/2 rounded-2xl p-6 shadow-2xl border border-gray-100",
+                "bg-white rounded-2xl p-6 shadow-2xl border border-gray-100",
               )}
             >
               {children}
             </div>
           </motion.div>
-        </>
+        </motion.div>
       )}
     </AnimatePresence>
   );
@@ -113,7 +116,7 @@ const CalendarButton = ({ icon: Icon, label, onClick, className = "" }) => (
 const SingleEventCard = ({ eventData }) => {
   const { t } = useTranslation();
   const [showCalendarModal, setShowCalendarModal] = useState(false);
-  const fadeUp = useMotionPreset("fadeUp");
+  const scaleIn = useMotionPreset("scaleIn");
 
   const googleCalendarLink = () => {
     const { startDate, endDate } = getEventRange(eventData);
@@ -164,9 +167,10 @@ END:VCALENDAR`;
         className={cn(
           "bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4",
         )}
-        variants={fadeUp}
+        variants={scaleIn}
         initial="hidden"
-        animate="visible"
+        whileInView="visible"
+        viewport={VIEWPORT_REVEAL}
       >
         <div className={cn("flex justify-between items-center")}>
           <h3 className={cn("text-xl font-semibold text-gray-800")}>

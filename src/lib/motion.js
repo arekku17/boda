@@ -40,6 +40,31 @@ export const EASE = {
 /** Default translation distance (px) for "fade up into place" reveals. */
 export const LIFT = 20;
 
+/**
+ * Shared `viewport` options for `whileInView` scroll reveals.
+ *
+ * The fixed bottom nav bar (see BottomBar) covers roughly the bottom 100px
+ * of the screen, so the default "trigger as soon as 1px is visible" behavior
+ * fires while a section is still hidden behind it - the reveal is over by
+ * the time it's actually visible. The negative bottom margin shrinks the
+ * detection area so elements must clear the bar first.
+ */
+export const VIEWPORT = {
+  once: true,
+  margin: "0px 0px -100px 0px",
+};
+
+/**
+ * Same as `VIEWPORT`, plus requiring a third of the element to already be
+ * showing before it counts as "in view". Use this for card/button-sized
+ * elements - avoid it on very tall (e.g. `min-h-screen`) containers, since
+ * they may never reach that ratio while scrolling.
+ */
+export const VIEWPORT_REVEAL = {
+  ...VIEWPORT,
+  amount: 0.3,
+};
+
 // ============ Variant presets ============
 
 /** Simple opacity fade. */

@@ -75,6 +75,27 @@ export async function createAdminToken(c) {
 }
 
 /**
+ * Whether the current request carries a valid admin session token.
+ * Unlike `requireAdmin`, this never throws - it's for routes that behave
+ * differently for admins instead of rejecting non-admins outright.
+ * @param {import('hono').Context} c - Hono context
+ * @returns {Promise<boolean>}
+ */
+export async function isAdminRequest(c) {
+  try {
+    const { secret } = getAdminConfig(c);
+    const header = c.req.header("Authorization") || "";
+    const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+    if (!token) return false;
+
+    const payload = await verify(token, secret, "HS256");
+    return payload.role === "admin";
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Middleware that only lets requests with a valid admin token through
  */
 export async function requireAdmin(c, next) {

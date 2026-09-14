@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ExternalLink,
   Gift,
+  HandHeart,
   ImagePlus,
   Loader2,
   LogOut,
@@ -18,6 +19,7 @@ import {
   deleteGift,
   fetchGifts,
   resolveApiUrl,
+  unclaimGift,
   updateGift,
 } from "@/services/api";
 import { cn } from "@/lib/utils";
@@ -385,7 +387,10 @@ function GiftForm({ token, editingGift, onDone, onUnauthorized }) {
 
 function GiftList({ token, editingId, onEdit, onDeleted, onUnauthorized }) {
   const queryClient = useQueryClient();
-  const gifts = useQuery({ queryKey: ["gifts"], queryFn: fetchGifts });
+  const gifts = useQuery({
+    queryKey: ["gifts", token],
+    queryFn: () => fetchGifts(token),
+  });
 
   const remove = useMutation({
     mutationFn: (id) => deleteGift(token, id),
@@ -398,9 +403,25 @@ function GiftList({ token, editingId, onEdit, onDeleted, onUnauthorized }) {
     },
   });
 
+  const unclaim = useMutation({
+    mutationFn: (id) => unclaimGift(token, id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
+    },
+    onError: (error) => {
+      if (error.status === 401) onUnauthorized();
+    },
+  });
+
   const handleDelete = (gift) => {
     if (window.confirm(`¿Eliminar "${gift.name}"?`)) {
       remove.mutate(gift.id);
+    }
+  };
+
+  const handleUnclaim = (gift) => {
+    if (window.confirm(`¿Quitar a "${gift.claimedBy}" de "${gift.name}"?`)) {
+      unclaim.mutate(gift.id);
     }
   };
 
@@ -423,6 +444,11 @@ function GiftList({ token, editingId, onEdit, onDeleted, onUnauthorized }) {
       {remove.isError && (
         <p className={cn("text-sm text-red-600")}>
           {getErrorMessage(remove.error)}
+        </p>
+      )}
+      {unclaim.isError && (
+        <p className={cn("text-sm text-red-600")}>
+          {getErrorMessage(unclaim.error)}
         </p>
       )}
       {gifts.isSuccess && list.length === 0 && (
@@ -476,6 +502,28 @@ function GiftList({ token, editingId, onEdit, onDeleted, onUnauthorized }) {
                 Ver en la tienda
                 <ExternalLink className={cn("w-3 h-3")} />
               </a>
+              {gift.claimedBy && (
+                <div
+                  className={cn(
+                    "mt-1 flex items-center gap-1.5 text-xs text-emerald-700 bg-emerald-50 rounded-lg px-2 py-1 w-fit",
+                  )}
+                >
+                  <HandHeart className={cn("w-3.5 h-3.5 shrink-0")} />
+                  <span className={cn("truncate")}>
+                    Lo lleva: {gift.claimedBy}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => handleUnclaim(gift)}
+                    disabled={unclaim.isPending}
+                    className={cn(
+                      "shrink-0 underline hover:text-emerald-900 disabled:opacity-50",
+                    )}
+                  >
+                    Quitar
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className={cn("flex gap-1")}>
