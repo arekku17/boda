@@ -40,9 +40,8 @@ const config = {
         endTime: "",
         location: "Iglesia Jesucristo Rey de Gloria",
         address:
-          "Calle 10 entre Calle 11 y Andador 1, Col. La Cruz, Ciudad del Carmen, Campeche.",
-        mapsQuery:
-          "Iglesia Jesucristo Rey de Gloria, Ciudad del Carmen, Campeche",
+          "Calle 10 entre Calle 11 y Andador 1, Col. La Cruz, Champotón, Campeche.",
+        mapsQuery: "Iglesia Jesucristo Rey de Gloria, Champotón, Campeche",
         maps_url: "https://maps.app.goo.gl/94VH3YfD52P63ikk9",
         maps_embed:
           "https://maps.google.com/maps?q=19.338971,-90.7175222&z=17&output=embed",
@@ -54,8 +53,8 @@ const config = {
         endTime: "",
         location: "Salón Lua Eventos",
         address:
-          "Carr. Costera de Golfo entre Calle 1 y Calle 3, Col. Las Brisas, Ciudad del Carmen, Campeche.",
-        mapsQuery: "Lua Eventos, Ciudad del Carmen, Campeche",
+          "Carr. Costera de Golfo entre Calle 1 y Calle 3, Col. Las Brisas, Champotón, Campeche.",
+        mapsQuery: "Lua Eventos, Champotón, Campeche",
         maps_url: "https://maps.app.goo.gl/BcCKJvjF53nYhv989",
         maps_embed:
           "https://maps.google.com/maps?q=19.3349904,-90.736931&z=17&output=embed",
