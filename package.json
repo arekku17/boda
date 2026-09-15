@@ -32,6 +32,7 @@
     "server": "bun src/server/server.js",
     "server:node": "node src/server/server.js",
     "generate-links": "bun generate-links.js",
+    "generate-og": "node scripts/build-og-image.mjs",
     "deploy": "bun run build && wrangler deploy",
     "cf:dev": "wrangler dev",
     "cf:deploy": "wrangler deploy",

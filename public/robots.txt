@@ -1,3 +1,4 @@
+# La invitación no debe aparecer en buscadores...
 User-agent: *
 Disallow: /
 
@@ -12,6 +13,45 @@ Disallow: /
 # Prevent other web archives
 User-agent: archive
 Disallow: /
+
+# ...pero los bots que arman la vista previa al compartir el link sí tienen que
+# poder leer el <head> y descargar /og-image.png. Sin esto, WhatsApp y Facebook
+# muestran el link sin imagen.
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: facebookcatalog
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Slackbot-LinkExpanding
+Allow: /
+
+User-agent: Discordbot
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Pinterestbot
+Allow: /
+
+User-agent: SkypeUriPreview
+Allow: /
 
 # Prevent all crawling and caching
 Noarchive: *

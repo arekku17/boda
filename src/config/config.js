@@ -23,8 +23,9 @@ const config = {
     // Zona horaria del evento (para la cuenta regresiva y el calendario)
     timeZone: "America/Mexico_City",
     utcOffset: "-06:00",
-    // Imagen que aparece al compartir el link en redes sociales
-    ogImage: "",
+    // Imagen que aparece al compartir el link en redes sociales.
+    // Se genera con: node scripts/build-og-image.mjs
+    ogImage: "/og-image.png",
     // Icono de la pestaña del navegador
     favicon: "/favicon.svg",
     // Itinerario de la boda. El mapa de cada lugar se genera con "mapsQuery";
@@ -40,7 +41,8 @@ const config = {
         location: "Iglesia Jesucristo Rey de Gloria",
         address:
           "Calle 10 entre Calle 11 y Andador 1, Col. La Cruz, Ciudad del Carmen, Campeche.",
-        mapsQuery: "Iglesia Jesucristo Rey de Gloria, Ciudad del Carmen, Campeche",
+        mapsQuery:
+          "Iglesia Jesucristo Rey de Gloria, Ciudad del Carmen, Campeche",
         maps_url: "https://maps.app.goo.gl/94VH3YfD52P63ikk9",
         maps_embed:
           "https://maps.google.com/maps?q=19.338971,-90.7175222&z=17&output=embed",

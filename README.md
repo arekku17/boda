@@ -2,7 +2,7 @@
 
 Modern Islamic wedding invitation platform with multi-tenant architecture.
 
-![Preview](public/preview.png)
+![Preview](public/og-image.png)
 
 ```
 bun install && cp .env.example .env

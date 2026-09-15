@@ -16,7 +16,46 @@
       href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <title>Boda de Laura & Alejandro</title>
+    <title>Boda de Laura &amp; Alejandro</title>
+    <meta
+      name="description"
+      content="L&amp;A · 17-10-26 · Laura y Alejandro se casan. Acompáñanos en nuestra boda en Ciudad del Carmen, Campeche."
+    />
+
+    <!--
+      Vista previa al compartir el link (WhatsApp, Facebook, Instagram, etc.).
+      Tienen que estar aquí, en el HTML estático: los bots de redes sociales NO
+      ejecutan JavaScript, así que no ven las etiquetas que pone React.
+      %SITE_URL% lo reemplaza vite.config.js al compilar.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Laura &amp; Alejandro" />
+    <meta property="og:locale" content="es_MX" />
+    <meta property="og:title" content="Laura &amp; Alejandro · 17-10-26" />
+    <meta
+      property="og:description"
+      content="L&amp;A · 17-10-26 · Acompáñanos en nuestra boda en Ciudad del Carmen, Campeche."
+    />
+    <meta property="og:image" content="%SITE_URL%/og-image.png" />
+    <meta property="og:image:secure_url" content="%SITE_URL%/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="L&amp;A · 17-10-26" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Laura &amp; Alejandro · 17-10-26" />
+    <meta
+      name="twitter:description"
+      content="L&amp;A · 17-10-26 · Acompáñanos en nuestra boda en Ciudad del Carmen, Campeche."
+    />
+    <meta name="twitter:image" content="%SITE_URL%/og-image.png" />
+    <meta name="twitter:image:alt" content="L&amp;A · 17-10-26" />
+
+    <meta name="theme-color" content="#f4f6f1" />
+
+    <!-- La invitación es privada: fuera de buscadores y de archivos web. -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nocache" />
   </head>
 
   <body>
