@@ -168,6 +168,29 @@ export function claimGift(id, name) {
 }
 
 /**
+ * Give back a gift this guest claimed
+ * @param {string} id - Gift ID
+ * @param {string} token - Claim token saved when the gift was claimed
+ */
+export function releaseGift(id, token) {
+  return request(`/api/gifts/${id}/release`, {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
+}
+
+/**
+ * Get the gifts this guest claimed
+ * @param {string[]} tokens - Claim tokens saved in this browser
+ */
+export function fetchMyGifts(tokens) {
+  return request("/api/gifts/mine", {
+    method: "POST",
+    body: JSON.stringify({ tokens }),
+  });
+}
+
+/**
  * Release a claimed gift back to the registry (admin)
  * @param {string} token - Admin session token
  * @param {string} id - Gift ID

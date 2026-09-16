@@ -88,6 +88,20 @@ export const claimGiftSchema = z.object({
 });
 
 /**
+ * Guest release schema - only the browser that claimed a gift holds its token
+ */
+export const releaseGiftSchema = z.object({
+  token: z.string().uuid(),
+});
+
+/**
+ * "My gifts" lookup schema - claim tokens saved in the guest's browser
+ */
+export const myGiftsSchema = z.object({
+  tokens: z.array(z.string().uuid()).max(50),
+});
+
+/**
  * @typedef {import('zod').infer<typeof giftSchema>} Gift
  * @typedef {import('zod').infer<typeof giftIdParamSchema>} GiftIdParam
  */

@@ -196,6 +196,8 @@ describe("gifts routes", () => {
       const [filter, update] = collection.findOneAndUpdate.mock.calls[0];
       expect(filter).toMatchObject({ claimedBy: null });
       expect(update.$set.claimedBy).toBe("Ana");
+      expect(update.$set.claimToken).toEqual(expect.any(String));
+      expect(json.data.claimToken).toBe(update.$set.claimToken);
     });
 
     it("should reject claiming a gift someone else already claimed", async () => {
@@ -239,6 +241,116 @@ describe("gifts routes", () => {
     });
   });
 
+  describe("POST /gifts/:id/release", () => {
+    const CLAIM_TOKEN = "3f1c6d2e-8a4b-4c5d-9e6f-7a8b9c0d1e2f";
+
+    it("should release a gift claimed with the given token", async () => {
+      const collection = mockCollection({ updatedDoc: createGiftDoc() });
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/release`,
+        jsonRequest("POST", { token: CLAIM_TOKEN }),
+        ENV,
+      );
+
+      expect(res.status).toBe(200);
+      const [filter, update] = collection.findOneAndUpdate.mock.calls[0];
+      expect(filter).toEqual({
+        _id: new ObjectId(GIFT_ID),
+        claimToken: CLAIM_TOKEN,
+      });
+      expect(update.$set).toEqual({
+        claimedBy: null,
+        claimedAt: null,
+        claimToken: null,
+      });
+    });
+
+    it("should return 404 when the token doesn't match", async () => {
+      mockCollection({ updatedDoc: null });
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/release`,
+        jsonRequest("POST", { token: CLAIM_TOKEN }),
+        ENV,
+      );
+
+      expect(res.status).toBe(404);
+    });
+
+    it("should return 400 without a valid token", async () => {
+      mockCollection();
+
+      const res = await app.request(
+        `/gifts/${GIFT_ID}/release`,
+        jsonRequest("POST", { token: null }),
+        ENV,
+      );
+
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe("POST /gifts/mine", () => {
+    const CLAIM_TOKEN = "3f1c6d2e-8a4b-4c5d-9e6f-7a8b9c0d1e2f";
+
+    it("should return the gifts matching the saved claim tokens", async () => {
+      const collection = mockCollection({
+        findDocs: [
+          createGiftDoc({
+            claimedBy: "Ana",
+            claimedAt: UPDATED_AT,
+            claimToken: CLAIM_TOKEN,
+          }),
+        ],
+      });
+
+      const res = await app.request(
+        "/gifts/mine",
+        jsonRequest("POST", { tokens: [CLAIM_TOKEN] }),
+        ENV,
+      );
+      const json = await res.json();
+
+      expect(res.status).toBe(200);
+      expect(collection.find).toHaveBeenCalledWith(
+        { claimToken: { $in: [CLAIM_TOKEN] } },
+        { projection: { imageData: 0 } },
+      );
+      expect(json.data[0]).toMatchObject({
+        id: GIFT_ID,
+        claimToken: CLAIM_TOKEN,
+      });
+      expect(json.data[0]).not.toHaveProperty("claimedBy");
+    });
+
+    it("should not query the database without tokens", async () => {
+      const collection = mockCollection();
+
+      const res = await app.request(
+        "/gifts/mine",
+        jsonRequest("POST", { tokens: [] }),
+        ENV,
+      );
+      const json = await res.json();
+
+      expect(json.data).toEqual([]);
+      expect(collection.find).not.toHaveBeenCalled();
+    });
+
+    it("should return 400 for invalid tokens", async () => {
+      mockCollection();
+
+      const res = await app.request(
+        "/gifts/mine",
+        jsonRequest("POST", { tokens: [{ $ne: null }] }),
+        ENV,
+      );
+
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe("DELETE /gifts/:id/claim", () => {
     it("should reject requests without a token", async () => {
       const res = await app.request(
@@ -261,7 +373,11 @@ describe("gifts routes", () => {
 
       expect(res.status).toBe(200);
       const [, update] = collection.findOneAndUpdate.mock.calls[0];
-      expect(update.$set).toEqual({ claimedBy: null, claimedAt: null });
+      expect(update.$set).toEqual({
+        claimedBy: null,
+        claimedAt: null,
+        claimToken: null,
+      });
     });
 
     it("should return 404 for a non-existent gift", async () => {

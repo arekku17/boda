@@ -13,6 +13,8 @@ import {
   giftSchema,
   giftIdParamSchema,
   claimGiftSchema,
+  myGiftsSchema,
+  releaseGiftSchema,
 } from "./gifts.schema.js";
 import { getMongoDb } from "../../lib/mongo-client.js";
 import { AppError, ConflictError, NotFoundError } from "../../lib/errors.js";
@@ -238,11 +240,13 @@ giftsRoutes.post(
   async (c) => {
     const { id } = c.req.valid("param");
     const { name } = c.req.valid("json");
+    // Secret the guest's browser keeps to list the gifts it claimed later
+    const claimToken = crypto.randomUUID();
 
     const gifts = await getGiftsCollection(c);
     const updated = await gifts.findOneAndUpdate(
       { _id: new ObjectId(id), claimedBy: null },
-      { $set: { claimedBy: name, claimedAt: new Date() } },
+      { $set: { claimedBy: name, claimedAt: new Date(), claimToken } },
       { returnDocument: "after", projection: WITHOUT_IMAGE_DATA },
     );
 
@@ -258,9 +262,69 @@ giftsRoutes.post(
       );
     }
 
+    return c.json({
+      success: true,
+      data: { ...formatGift(updated, false), claimToken },
+    });
+  },
+);
+
+/**
+ * POST /gifts/:id/release
+ * A guest changes their mind and gives a gift back to the registry. Requires
+ * the claim token saved in the browser that claimed it.
+ */
+giftsRoutes.post(
+  "/:id/release",
+  zValidator("param", giftIdParamSchema),
+  zValidator("json", releaseGiftSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const { token } = c.req.valid("json");
+
+    const gifts = await getGiftsCollection(c);
+    const updated = await gifts.findOneAndUpdate(
+      { _id: new ObjectId(id), claimToken: token },
+      { $set: { claimedBy: null, claimedAt: null, claimToken: null } },
+      { returnDocument: "after", projection: WITHOUT_IMAGE_DATA },
+    );
+
+    if (!updated) {
+      throw new NotFoundError("Gift not found");
+    }
+
     return c.json({ success: true, data: formatGift(updated, false) });
   },
 );
+
+/**
+ * POST /gifts/mine
+ * Gifts a guest claimed, looked up by the claim tokens their browser saved.
+ * Tokens of gifts that were released or deleted simply don't come back.
+ */
+giftsRoutes.post("/mine", zValidator("json", myGiftsSchema), async (c) => {
+  const { tokens } = c.req.valid("json");
+  if (tokens.length === 0) {
+    return c.json({ success: true, data: [] });
+  }
+
+  const gifts = await getGiftsCollection(c);
+  const docs = await gifts
+    .find(
+      { claimToken: { $in: tokens } },
+      { projection: WITHOUT_IMAGE_DATA },
+    )
+    .sort({ orderIndex: 1, createdAt: 1 })
+    .toArray();
+
+  return c.json({
+    success: true,
+    data: docs.map((doc) => ({
+      ...formatGift(doc, false),
+      claimToken: doc.claimToken,
+    })),
+  });
+});
 
 /**
  * DELETE /gifts/:id/claim
@@ -277,7 +341,7 @@ giftsRoutes.delete(
     const gifts = await getGiftsCollection(c);
     const updated = await gifts.findOneAndUpdate(
       { _id: new ObjectId(id) },
-      { $set: { claimedBy: null, claimedAt: null } },
+      { $set: { claimedBy: null, claimedAt: null, claimToken: null } },
       { returnDocument: "after", projection: WITHOUT_IMAGE_DATA },
     );
 

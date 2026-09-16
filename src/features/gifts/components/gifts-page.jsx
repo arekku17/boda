@@ -7,10 +7,24 @@ import {
   ExternalLink,
   Gift,
   HandHeart,
+  HeartHandshake,
   Loader2,
+  Undo2,
 } from "lucide-react";
 import { useConfig } from "@/features/invitation/hooks/use-config";
-import { claimGift, fetchGifts, resolveApiUrl } from "@/services/api";
+import {
+  claimGift,
+  fetchGifts,
+  fetchMyGifts,
+  releaseGift,
+  resolveApiUrl,
+} from "@/services/api";
+import {
+  addClaimToken,
+  getClaimTokens,
+  removeClaimToken,
+  setClaimTokens,
+} from "@/features/gifts/claimed-gifts-storage";
 import { LanguageProvider, useTranslation } from "@/lib/i18n";
 import { useMotionPreset, staggerContainer } from "@/lib/motion";
 import { cn } from "@/lib/utils";
@@ -23,8 +37,10 @@ function ClaimGift({ gift, t }) {
 
   const claim = useMutation({
     mutationFn: (guestName) => claimGift(gift.id, guestName),
-    onSuccess: () => {
+    onSuccess: ({ data }) => {
+      if (data?.claimToken) addClaimToken(data.claimToken);
       queryClient.invalidateQueries({ queryKey: ["gifts"] });
+      queryClient.invalidateQueries({ queryKey: ["my-gifts"] });
     },
     onError: (err) => {
       // Someone else just claimed it, or it was removed - either way it
@@ -106,6 +122,168 @@ function ClaimGift({ gift, t }) {
   );
 }
 
+// Gifts this browser claimed. Tokens the server no longer recognizes (the
+// gift was released or deleted) are dropped from storage.
+async function loadMyGifts() {
+  const tokens = getClaimTokens();
+  if (tokens.length === 0) return [];
+
+  const { data } = await fetchMyGifts(tokens);
+  setClaimTokens(data.map((gift) => gift.claimToken));
+  return data;
+}
+
+function ReleaseGift({ gift, t }) {
+  const queryClient = useQueryClient();
+  const [confirming, setConfirming] = useState(false);
+
+  const release = useMutation({
+    mutationFn: () => releaseGift(gift.id, gift.claimToken),
+    onSuccess: () => removeClaimToken(gift.claimToken),
+    onError: (err) => {
+      // 404: it was already released (e.g. by the couple), so forget it too
+      if (err.status === 404) removeClaimToken(gift.claimToken);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
+      queryClient.invalidateQueries({ queryKey: ["my-gifts"] });
+    },
+  });
+
+  if (!confirming) {
+    return (
+      <button
+        type="button"
+        onClick={() => setConfirming(true)}
+        className={cn(
+          "inline-flex items-center gap-1 text-xs text-gray-500 hover:text-rose-600 underline underline-offset-2 transition-colors",
+        )}
+      >
+        <Undo2 className={cn("w-3 h-3")} />
+        {t("giftsPage.release")}
+      </button>
+    );
+  }
+
+  return (
+    <div className={cn("space-y-1")}>
+      <div className={cn("flex items-center gap-2")}>
+        <button
+          type="button"
+          onClick={() => release.mutate()}
+          disabled={release.isPending}
+          className={cn(
+            "inline-flex items-center gap-1 bg-white border border-rose-200 hover:bg-rose-50 disabled:opacity-60 text-rose-600 px-2 py-1 rounded-lg text-xs font-medium transition-colors",
+          )}
+        >
+          {release.isPending && (
+            <Loader2 className={cn("w-3 h-3 animate-spin")} />
+          )}
+          {t("giftsPage.releaseConfirm")}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setConfirming(false);
+            release.reset();
+          }}
+          disabled={release.isPending}
+          className={cn(
+            "px-2 py-1 rounded-lg text-xs text-gray-600 border border-gray-200 hover:bg-gray-50",
+          )}
+        >
+          {t("giftsPage.releaseCancel")}
+        </button>
+      </div>
+      {release.isError && release.error.status !== 404 && (
+        <p className={cn("text-xs text-red-600")}>
+          {t("giftsPage.releaseError")}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function MyGifts({ gifts, t }) {
+  return (
+    <section
+      className={cn(
+        "mb-8 rounded-2xl border border-rose-100 bg-rose-50/60 p-4 space-y-3",
+      )}
+    >
+      <div className={cn("flex items-center gap-2")}>
+        <HeartHandshake className={cn("w-5 h-5 text-rose-500")} />
+        <h2 className={cn("font-medium text-gray-800")}>
+          {t("giftsPage.myGiftsTitle")}
+        </h2>
+      </div>
+
+      <ul className={cn("space-y-2")}>
+        {gifts.map((gift) => (
+          <li
+            key={gift.id}
+            className={cn(
+              "flex items-center gap-3 rounded-xl bg-white border border-rose-100 p-2",
+            )}
+          >
+            <div
+              className={cn(
+                "w-14 h-14 shrink-0 rounded-lg overflow-hidden bg-rose-50 flex items-center justify-center",
+              )}
+            >
+              {gift.image ? (
+                <img
+                  src={resolveApiUrl(gift.image)}
+                  alt={gift.name}
+                  loading="lazy"
+                  className={cn("w-full h-full object-cover")}
+                />
+              ) : (
+                <Gift className={cn("w-6 h-6 text-rose-300")} />
+              )}
+            </div>
+
+            <div className={cn("flex-1 min-w-0")}>
+              <p
+                className={cn(
+                  "text-sm font-medium text-gray-800 leading-snug truncate",
+                )}
+              >
+                {gift.name}
+              </p>
+              {gift.store && (
+                <p className={cn("text-xs text-gray-500 truncate")}>
+                  {gift.store}
+                </p>
+              )}
+              <div className={cn("pt-1")}>
+                <ReleaseGift gift={gift} t={t} />
+              </div>
+            </div>
+
+            <a
+              href={gift.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`${t("giftsPage.buy")}: ${gift.name}`}
+              className={cn(
+                "shrink-0 flex items-center gap-1 bg-rose-500 hover:bg-rose-600 text-white px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors",
+              )}
+            >
+              <span>{t("giftsPage.buy")}</span>
+              <ExternalLink className={cn("w-3 h-3")} />
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <p className={cn("text-xs text-gray-500")}>
+        {t("giftsPage.myGiftsNote")}
+      </p>
+    </section>
+  );
+}
+
 function GiftsPageContent() {
   const config = useConfig();
   const { t } = useTranslation();
@@ -113,6 +291,11 @@ function GiftsPageContent() {
   const scaleIn = useMotionPreset("scaleIn");
   const giftsQuery = useQuery({ queryKey: ["gifts"], queryFn: fetchGifts });
   const gifts = giftsQuery.data?.data || [];
+  const myGiftsQuery = useQuery({
+    queryKey: ["my-gifts"],
+    queryFn: loadMyGifts,
+  });
+  const myGifts = myGiftsQuery.data || [];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -180,6 +363,8 @@ function GiftsPageContent() {
             {t("giftsPage.message")}
           </motion.p>
         </motion.div>
+
+        {myGifts.length > 0 && <MyGifts gifts={myGifts} t={t} />}
 
         {giftsQuery.isLoading && (
           <p className={cn("text-center text-gray-500")}>
