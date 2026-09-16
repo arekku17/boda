@@ -172,21 +172,9 @@ END:VCALENDAR`;
         whileInView="visible"
         viewport={VIEWPORT_REVEAL}
       >
-        <div className={cn("flex justify-between items-center")}>
-          <h3 className={cn("text-xl font-semibold text-gray-800")}>
-            {eventData.title.split(" - ")[0]}
-          </h3>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={cn(
-              "text-rose-500 hover:text-rose-600 transition-colors",
-            )}
-            onClick={() => setShowCalendarModal(true)}
-          >
-            <CalendarPlus className={cn("w-5 h-5")} />
-          </motion.button>
-        </div>
+        <h3 className={cn("text-xl font-semibold text-gray-800")}>
+          {eventData.title.split(" - ")[0]}
+        </h3>
         <div className={cn("space-y-3 text-gray-600")}>
           <div className={cn("flex items-center space-x-3")}>
             <Calendar className={cn("w-5 h-5 text-rose-500")} />
@@ -209,6 +197,20 @@ END:VCALENDAR`;
             </span>
           </div>
         </div>
+
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setShowCalendarModal(true)}
+          className={cn(
+            "w-full flex items-center justify-center gap-1.5 bg-white text-gray-600 px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors text-sm",
+          )}
+        >
+          <CalendarPlus className={cn("w-3.5 h-3.5")} />
+          <span className={cn("font-semibold")}>
+            {t("events.addToCalendar")}
+          </span>
+        </motion.button>
       </motion.div>
       <Modal
         isOpen={showCalendarModal}
