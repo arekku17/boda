@@ -62,6 +62,7 @@
     "claimCancel": "Cancelar",
     "claimTaken": "Alguien más ya apartó este regalo.",
     "claimError": "No se pudo apartar el regalo. Intenta de nuevo.",
+    "claimedToast": "Se agregó a tu lista de regalos",
     "myGiftsTitle": "Regalos que llevarás",
     "myGiftsNote": "Esta lista se guarda en este navegador.",
     "release": "Ya no lo llevaré",

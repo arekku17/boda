@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
+  CheckCircle2,
   ExternalLink,
   Gift,
   HandHeart,
@@ -26,10 +27,14 @@ import {
   setClaimTokens,
 } from "@/features/gifts/claimed-gifts-storage";
 import { LanguageProvider, useTranslation } from "@/lib/i18n";
-import { useMotionPreset, staggerContainer } from "@/lib/motion";
+import {
+  useMotionPreset,
+  useReducedMotionFlag,
+  staggerContainer,
+} from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-function ClaimGift({ gift, t }) {
+function ClaimGift({ gift, t, onClaimed }) {
   const queryClient = useQueryClient();
   const [claiming, setClaiming] = useState(false);
   const [name, setName] = useState("");
@@ -37,10 +42,15 @@ function ClaimGift({ gift, t }) {
 
   const claim = useMutation({
     mutationFn: (guestName) => claimGift(gift.id, guestName),
-    onSuccess: ({ data }) => {
+    onSuccess: async ({ data }) => {
       if (data?.claimToken) addClaimToken(data.claimToken);
-      queryClient.invalidateQueries({ queryKey: ["gifts"] });
-      queryClient.invalidateQueries({ queryKey: ["my-gifts"] });
+      // Wait for the lists to refresh so the gift is already in
+      // "Regalos que llevarás" when the page scrolls up to it
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["gifts"] }),
+        queryClient.invalidateQueries({ queryKey: ["my-gifts"] }),
+      ]);
+      onClaimed?.();
     },
     onError: (err) => {
       // Someone else just claimed it, or it was removed - either way it
@@ -296,6 +306,19 @@ function GiftsPageContent() {
     queryFn: loadMyGifts,
   });
   const myGifts = myGiftsQuery.data || [];
+  const reducedMotion = useReducedMotionFlag();
+  const [toast, setToast] = useState(null);
+
+  const handleClaimed = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: reducedMotion ? "auto" : "smooth" });
+    setToast({ id: Date.now(), message: t("giftsPage.claimedToast") });
+  }, [reducedMotion, t]);
+
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 3500);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -444,12 +467,37 @@ function GiftsPageContent() {
                     <ExternalLink className={cn("w-3.5 h-3.5")} />
                   </a>
 
-                  <ClaimGift gift={gift} t={t} />
+                  <ClaimGift gift={gift} t={t} onClaimed={handleClaimed} />
                 </div>
               </motion.li>
             ))}
           </motion.ul>
         )}
+
+        <AnimatePresence>
+          {toast && (
+            <motion.div
+              key={toast.id}
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              role="status"
+              className={cn(
+                "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-max max-w-[calc(100%-2rem)]",
+              )}
+            >
+              <div
+                className={cn(
+                  "bg-black/80 text-white px-4 py-2 rounded-full backdrop-blur-sm flex items-center gap-2",
+                )}
+              >
+                <CheckCircle2 className={cn("w-4 h-4 shrink-0")} />
+                <span className={cn("text-sm")}>{toast.message}</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
